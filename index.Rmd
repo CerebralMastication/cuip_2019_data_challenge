@@ -35,7 +35,7 @@ Let's make these field names better so we don't have to quote these later. Using
 ```{r fig.height=10, fig.width=10, message=FALSE, warning=FALSE}
 air_quality %>% 
   clean_names() %>% 
-  select(timestamp_iso, nicename,p_2_5_um, p_2_5_um_b, pm2_5_atm, pm2_5_atm_b, pm2_5_cf_1, pm2_5_cf_1_b, current_temp_f, current_humidity) ->
+  select(timestamp_iso, nicename, p_2_5_um, p_2_5_um_b, pm2_5_atm, pm2_5_atm_b, pm2_5_cf_1, pm2_5_cf_1_b, current_temp_f, current_humidity) ->
   aq_limited
 
 ggpairs(aq_limited)
@@ -80,7 +80,7 @@ That's not as insightful as I had hoped. Let's look at humidity:
 ggplot(aq_limited) +
  aes(x = current_humidity, y = p_2_5_um) +
  geom_point(size = 1.92, colour = "#0c4c8a") +
- labs(x = "Relative Humidity", y = "Sensor Level", title = "`p_2_5_um` vs Humidity") +
+ labs(x = "Absolute Humidity", y = "Sensor Level", title = "`p_2_5_um` vs Humidity") +
  theme_minimal() +
  facet_wrap(vars(nicename))
 
