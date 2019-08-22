@@ -1,5 +1,4 @@
-# cuip_2019_data_challenge
-University of Tennessee Chattanooga CUIP data challenge 2019
+# University of Tennessee Chattanooga CUIP data challenge 2019
 
 This is an example stub for analysis of the UTC 2019 CUIP data challenge to illustrarte setting up data access using R. 
 
