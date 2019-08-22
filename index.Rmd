@@ -88,10 +88,10 @@ aq_limited %>%
 
 Oh... the data is irregular. Ok, so we need to put this junk in buckets. I'm thinking maybe 5 min buckets? Let's see if we can do that. Feels like a job for grouping by a floor value. We can get the 15 minute interval floors from the `lubridate` package. 
 
-```{r}
-
+```{r message=FALSE, warning=FALSE}
 library(lubridate)
-
+```
+```{r}
 
 aq_limited %>%
   select(timestamp_iso, nicename, p_2_5_um) %>%
@@ -116,7 +116,7 @@ aq_limited_wide %>%
   ggpairs()
 ```
 
-
+There's not enough data here to be meaninful, so I put zero value on these correlation measures. We can come back later with more data and take a look at these. 
 
 Since we're slicing and dicing, let's look at temp vs. p_2_5_um for each station:
 
