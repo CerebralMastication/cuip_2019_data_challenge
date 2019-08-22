@@ -10,14 +10,17 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 This is an html render of the `index.Rmd` located here: https://github.com/CerebralMastication/cuip_2019_data_challenge
 
-A prievew of the whole dataset is in this repo. Let's pull in the data and take a look at it. 
+A preview of the whole dataset is in this repo. Let's pull in the data and take a look at it. 
 
 Load up a few libraries
 ```{r include=FALSE}
 library(tidyverse)
 library(skimr)
+library(janitor)
+library(GGally)
 ```
 
+## Air Quality Data
 
 Grab the air quality data then give it a quick `skim` (from the `skimr` package):
 
@@ -26,6 +29,67 @@ air_quality <- read_csv("01_data/CSCDC+Dataset+Preview/air_quality_csv/all.csv")
 
 skim(air_quality)  %>% kable()
 ```
+
+Let's make these field names better so we don't have to quote these later. Using `janitor::clean_names()` to do the dirty work. And we have a bunch of fields with 2_5 in the name so let's look at those. 
+
+```{r fig.height=10, fig.width=10, message=FALSE, warning=FALSE}
+air_quality %>% 
+  clean_names() %>% 
+  select(timestamp_iso, nicename,p_2_5_um, p_2_5_um_b, pm2_5_atm, pm2_5_atm_b, pm2_5_cf_1, pm2_5_cf_1_b, current_temp_f, current_humidity) ->
+  aq_limited
+
+ggpairs(aq_limited)
+```
+
+Well that's kind of interesting. I'm not sure what the different pm2.5 related fields mean. Maybe we can find out. 
+
+Let's look at a few of these individually. 
+
+```{r}
+
+ggplot(aq_limited) +
+ aes(x = timestamp_iso, y = p_2_5_um) +
+ geom_line(size = 1.92, colour = "#0c4c8a") +
+ labs(x = "Date & Time", y = "Sensor Level", title = "`p_2_5_um` by Station") +
+ theme_minimal() +
+ facet_wrap(vars(nicename))
+
+```
+
+
+I don't know what it means exactly, but I bet there's hella traffic at douglas compared to the other stations. The volatility there is off the hook (comparatively)
+
+Since we're slicing and dicing, let's look at temp vs. p_2_5_um for each station:
+
+```{r}
+ggplot(aq_limited) +
+ aes(x = current_temp_f, y = p_2_5_um) +
+ geom_point(size = 1.92, colour = "#0c4c8a") +
+ labs(x = "Temp (F)", y = "Sensor Level", title = "`p_2_5_um` vs Temp (F)") +
+ theme_minimal() +
+ facet_wrap(vars(nicename))
+
+
+```
+
+
+That's not as insightful as I had hoped. Let's look at humidity:
+
+
+```{r}
+ggplot(aq_limited) +
+ aes(x = current_humidity, y = p_2_5_um) +
+ geom_point(size = 1.92, colour = "#0c4c8a") +
+ labs(x = "Relative Humidity", y = "Sensor Level", title = "`p_2_5_um` vs Humidity") +
+ theme_minimal() +
+ facet_wrap(vars(nicename))
+
+
+```
+
+we see the striping in temp because temps are reported as whole integers only. Makes for a funny pattern. 
+
+## Video Events
 
 We'll do the same wiht the video events:
 
