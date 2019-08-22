@@ -1,0 +1,51 @@
+---
+title: "CUIP Fully Data Analysis"
+author: "JD Long"
+date: "8/22/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Docker Setup
+
+Fire up a 64GB digital ocean docker machine: 
+
+```
+docker-machine create --digitalocean-size "s-16vcpu-64gb" --driver digitalocean --digitalocean-access-token $DO_PAT cuipchallenge
+```
+assumes there is an environment variable named DO_PAT that contains the DO access token.
+
+then run
+
+```
+eval $(docker-machine env cuipchallenge) 
+```
+to set up some environment variables so we can connect
+
+`docker run -d -e PASSWORD=XXXXXXXXX -p 8787:8787 rocker/tidyverse`
+will start the Docker instance and use XXXXXXXXX as the Rstudio password
+
+`docker-machine ip cuipchallenge` 
+shows the IP address... now connect to that IP:8787
+
+
+if a DO droplet is killed from DO, then delete the machine locally with: 
+`rm -rf ~/.docker/machine/drivetimegetter`
+
+## Fetch Data
+
+Download the full dataset from utccuip.com:
+
+```{r}
+
+url <-"http://cscdc-2019.utccuip.com/CSCDC+Dataset.zip"
+dest_file <- "01_data/CSCDC+Dataset.zip"
+
+download.file(url, dest_file)
+unzip(zipfile = dest_file, exdir = "01_data/")
+
+```
+
