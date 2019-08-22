@@ -8,6 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+This is an html render of the `index.Rmd` located here: https://github.com/CerebralMastication/cuip_2019_data_challenge
 
 A prievew of the whole dataset is in this repo. Let's pull in the data and take a look at it. 
 
