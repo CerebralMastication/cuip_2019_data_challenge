@@ -12,7 +12,21 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 This is an html render of the `index.Rmd` located here: https://github.com/CerebralMastication/cuip_2019_data_challenge
 
+This is an example stub for analysis of the UTC 2019 CUIP data challenge to illustrarte setting up data access using R. 
+
+This example script is `index.Rmd` which is rendered to html and served via this project's GitHub pages site:  https://cerebralmastication.github.io/cuip_2019_data_challenge/
+
+The data for the challenge can be found at: https://www.utccuip.com/smart-city-data-challenge-dataset
+
+A description of the challenge can be found at: http://www.pattersonconsultingtn.com/blog/cuip_smart_city_data_challenge_2019.html
+
+We're supposed to be looking at PM 2.5. What is PM 2.5? Well I didn't know so I googled that junk. Came up with this helpful link:
+https://www.health.ny.gov/environmental/indoors/air/pmq_a.htm
+
+Looks like it's a level of 2.5 micron and smaller particulate matter. The article says it's sensitive to wind levels. This is not overly surprising. There's no atheists in foxholes and no air quality warnings in a hurricane. 
+
 A preview of the whole dataset is in this repo. Let's pull in the data and take a look at it. 
+
 
 Load up a few libraries
 ```{r include=FALSE}
@@ -61,7 +75,7 @@ ggplot(aq_limited) +
 
 I don't know what it means exactly, but I bet there's hella traffic at douglas compared to the other stations. The volatility there is off the hook (comparatively)
 
-Let's look at the same data layed on the same graph. It looks like they all move together:
+Let's look at the same data layered on the same graph. I can't tell if they move together... seems like they should to some degree:
 
 
 ```{r}
@@ -76,7 +90,7 @@ ggplot(aq_limited) +
 ```
 
 
-Well taht's sort of noisy. I wonder what the correlation is. Let's reshape the data to look at correlations quickly. 
+Well that's sort of noisy. I wonder what the correlation is. Let's reshape the data to look at correlations quickly. 
 
 Do a quick reshape of the data to get the stations in columns
 ```{r}
@@ -86,7 +100,7 @@ aq_limited %>%
   spread(nicename, p_2_5_um ) %>% head(10) %>% kable()
 ```
 
-Oh... the data is irregular. Ok, so we need to put this junk in buckets. I'm thinking maybe 5 min buckets? Let's see if we can do that. Feels like a job for grouping by a floor value. We can get the 15 minute interval floors from the `lubridate` package. 
+Oh... the data is irregular. Ok, so we need to put this junk in buckets. I'm thinking maybe 10 min buckets? Let's see if we can do that. Feels like a job for grouping by a floor value. We can get the 10 minute interval floors from the `lubridate` package. 
 
 ```{r message=FALSE, warning=FALSE}
 library(lubridate)
@@ -118,7 +132,7 @@ aq_limited_wide %>%
 
 There's not enough data here to be meaninful, so I put zero value on these correlation measures. We can come back later with more data and take a look at these. 
 
-Since we're slicing and dicing, let's look at temp vs. p_2_5_um for each station:
+Since we're slicing and dicing, let's look at `temp` vs. `p_2_5_um` for each station:
 
 ```{r}
 ggplot(aq_limited) +
@@ -147,12 +161,6 @@ ggplot(aq_limited) +
 ```
 
 we see the striping in temp because temps are reported as whole integers only. Makes for a funny pattern. 
-
-
-So what is PM 2.5? Well I didn't know so I googled that junk. Came up with this helpful link:
-https://www.health.ny.gov/environmental/indoors/air/pmq_a.htm
-
-Looks like it's a level of 2.5 micron and smaller particulate matter. The article says it's sensitive to wind levels. This is not overly surprising. There's no atheists in foxholes and no air quality warnings in a hurricane. 
 
 I don't know where this data was collected, but I suspect it was around Chattanooga. Let's plot the locations and see:
 
