@@ -2,7 +2,9 @@
 title: "CUIP 2019 Data Challenge"
 author: "JD Long"
 date: "8/22/2019"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -95,6 +97,39 @@ https://www.health.ny.gov/environmental/indoors/air/pmq_a.htm
 
 Looks like it's a level of 2.5 micron and smaller particulate matter. The article says it's sensitive to wind levels. This is not overly surprising. There's no atheists in foxholes and no air quality warnings in a hurricane. 
 
+I don't know where this data was collected, but I suspect it was around Chattanooga. Let's plot the locations and see:
+
+```{r message=FALSE, warning=FALSE}
+library(ggmap)
+library(sf)
+library(mapview)
+library(leaflet)
+```
+
+```{r}
+# grap the coordinates
+air_quality %>% 
+  group_by(nicename, lat, lon) %>%
+  summarize(obs_count = n()) ->
+  obs_location
+
+# turn them into an sf object
+obs_location_sf <-
+  st_as_sf(obs_location,
+           coords = c("lon", "lat"),
+           crs = 4326)
+
+
+m1 <- mapview(obs_location_sf, legend = FALSE)
+
+l1 = addStaticLabels(m1,
+                     label = obs_location_sf$nicename,
+                     textsize = "20px",
+                     direction = 'left')
+l1
+```
+
+Cool, they are all right up one strip in Chattanooga. 
 
 ## Video Events
 
