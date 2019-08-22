@@ -373,263 +373,1511 @@ summary {
 <p>A prievew of the whole dataset is in this repo. Let’s pull in the data and take a look at it.</p>
 <p>Load up a few libraries</p>
 <p>Grab the air quality data then give it a quick <code>skim</code> (from the <code>skimr</code> package):</p>
-<pre class="r"><code>air_quality &lt;- read_csv(&quot;01_data/CSCDC+Dataset+Preview/air_quality_csv/all.csv&quot;)</code></pre>
-<pre><code>## Warning: Missing column names filled in: 'X1' [1]</code></pre>
-<pre><code>## Parsed with column specification:
-## cols(
-##   .default = col_double(),
-##   nicename = col_character(),
-##   SensorId = col_character(),
-##   wlstate = col_character(),
-##   DateTime = col_character(),
-##   Geo = col_character(),
-##   pm2.5_aqi_color = col_character(),
-##   hardwarediscovered = col_character(),
-##   place = col_character(),
-##   pm2.5_aqi_color_b = col_character(),
-##   location = col_character(),
-##   `timestamp-iso` = col_datetime(format = &quot;&quot;)
-## )</code></pre>
-<pre><code>## See spec(...) for full column specifications.</code></pre>
-<pre class="r"><code>skim(air_quality)</code></pre>
-<pre><code>## Skim summary statistics
-##  n obs: 210 
-##  n variables: 93 
-## 
-## ── Variable type:character ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-##            variable missing complete   n min max empty n_unique
-##            DateTime       0      210 210  20  20     0      209
-##                 Geo       0      210 210  14  14     0        7
-##  hardwarediscovered       0      210 210  53  54     0        2
-##            location       0      210 210  21  21     0        7
-##            nicename       0      210 210  11  12     0        7
-##               place       0      210 210   7   7     0        1
-##     pm2.5_aqi_color       0      210 210  14  14     0       25
-##   pm2.5_aqi_color_b       0      210 210  14  14     0       22
-##            SensorId       0      210 210  17  17     0        7
-##             wlstate       0      210 210   9   9     0        1
-## 
-## ── Variable type:numeric ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-##              variable missing complete   n         mean         sd
-##                   Adc       0      210 210      0.0057      0.014 
-##    current_dewpoint_f       0      210 210     54.89        1.67  
-##      current_humidity       0      210 210     27.92        2     
-##        current_temp_f       0      210 210     93.03        2.48  
-##       hardwareversion       0      210 210      2           0     
-##             httpsends       0      210 210   4850.55      382.95  
-##           httpsuccess       0      210 210   4850.26      382.89  
-##                    Id       0      210 210   1501.43       20.34  
-##            key1_count       0      210 210 113398.93    45516.37  
-##          key1_count_b       0      210 210 115563.64    45768.72  
-##         key1_response       0      210 210    200           0     
-##       key1_response_b       0      210 210    200           0     
-##    key1_response_date       0      210 210      1.6e+09  1042.1   
-##  key1_response_date_b       0      210 210      1.6e+09  1042.18  
-##            key2_count       0      210 210 115296.93    45759.79  
-##          key2_count_b       0      210 210 115524.5     45749.59  
-##         key2_response       0      210 210    200           0     
-##       key2_response_b       0      210 210    200           0     
-##    key2_response_date       0      210 210      1.6e+09  1042.15  
-##  key2_response_date_b       0      210 210      1.6e+09  1042.24  
-##                   lat       0      210 210     35.04        0.0021
-##               latency       0      210 210    436.05      517.46  
-##             latency_b     120       90 210    112.62       23.96  
-##           loggingrate       0      210 210     15           0     
-##                   lon       0      210 210    -85.3         0.0056
-##                   Mem       0      210 210  20119.96     1034.14  
-##                 memcs       0      210 210    974.4        27.9   
-##                 memfb       0      210 210  15868.34     1501.6   
-##               memfrag       0      210 210     21.13        4.56  
-##              p_0_3_um       0      210 210   2608.91      390.32  
-##            p_0_3_um_b       0      210 210   2557.19      320.02  
-##              p_0_5_um       0      210 210    777.34       98.03  
-##            p_0_5_um_b       0      210 210    766.04       75.05  
-##              p_1_0_um       0      210 210    145.46       27.04  
-##            p_1_0_um_b       0      210 210    139.32       23.18  
-##             p_10_0_um       0      210 210      0.24        0.23  
-##           p_10_0_um_b       0      210 210      0.25        0.28  
-##              p_2_5_um       0      210 210      7.29        2.33  
-##            p_2_5_um_b       0      210 210      7.3         3.29  
-##              p_5_0_um       0      210 210      1.25        0.65  
-##            p_5_0_um_b       0      210 210      1.39        0.94  
-##            pa_latency       0      210 210    558.8       195.45  
-##                period       0      210 210    119.97        0.17  
-##             pm1_0_atm       0      210 210     14.69        2.02  
-##           pm1_0_atm_b       0      210 210     14.39        1.57  
-##            pm1_0_cf_1       0      210 210     14.62        1.79  
-##          pm1_0_cf_1_b       0      210 210     14.35        1.39  
-##            pm10_0_atm       0      210 210     23           3.45  
-##          pm10_0_atm_b       0      210 210     22.5         3.18  
-##           pm10_0_cf_1       0      210 210     22.95        3.24  
-##         pm10_0_cf_1_b       0      210 210     22.47        2.96  
-##             pm2_5_atm       0      210 210     22.12        3.35  
-##           pm2_5_atm_b       0      210 210     21.51        2.73  
-##            pm2_5_cf_1       0      210 210     21.97        2.75  
-##          pm2_5_cf_1_b       0      210 210     21.4         2.24  
-##             pm2.5_aqi       0      210 210     71.75        5.86  
-##           pm2.5_aqi_b       0      210 210     70.56        4.79  
-##              pressure       0      210 210    989.36        0.71  
-##              response       0      210 210    200.43        0.5   
-##            response_b     120       90 210    200           0     
-##         response_date       0      210 210      1.6e+09  1044.13  
-##       response_date_b     120       90 210      1.6e+09  1045.53  
-##                  rssi       0      210 210    -65.52        6.36  
-##              status_0       0      210 210      2           0     
-##              status_1       0      210 210      2           0     
-##             status_10     120       90 210      1           0     
-##              status_2       0      210 210      2           0     
-##              status_3       0      210 210      2           0     
-##              status_4       0      210 210      2           0     
-##              status_5       0      210 210      2           0     
-##              status_6       0      210 210      1.43        0.5   
-##              status_7       0      210 210      0           0     
-##              status_8       0      210 210      2           0     
-##              status_9       0      210 210      2           0     
-##             timestamp       0      210 210      1.6e+12 1e+06     
-##            ts_latency       0      210 210    906.79      341.16  
-##          ts_latency_b       0      210 210    800.22      351.61  
-##          ts_s_latency       0      210 210    815.89      337.64  
-##        ts_s_latency_b       0      210 210    802.45      368.85  
-##                uptime       0      210 210  90089.12     1223.87  
-##               version       0      210 210      4.02        0     
-##                    X1       0      210 210    104.5        60.77  
-##           p0         p25          p50          p75         p100     hist
-##      0           0            0            0            0.04    ▇▁▁▁▁▁▁▁
-##     52          54           55           56           59       ▂▃▇▇▃▂▂▁
-##     23          26           28           29           33       ▁▂▅▇▃▃▂▁
-##     85          91           93           95           97       ▁▁▂▇▅▇▆▇
-##      2           2            2            2            2       ▁▁▁▇▁▁▁▁
-##   4410        4512.25      4597.5       5267         5422       ▇▆▁▁▁▁▅▅
-##   4410        4512         4597         5266.75      5422       ▇▆▁▁▁▁▅▅
-##   1458        1486         1502         1516         1544       ▃▅▇▇▇▇▅▃
-##  58514       80016.25    108616.5     143178.75     2e+05       ▃▇▃▃▃▁▁▃
-##  58918       79996.25    119216.5     143366.75    205649       ▃▇▁▇▃▁▁▃
-##    200         200          200          200          200       ▁▁▁▇▁▁▁▁
-##    200         200          200          200          200       ▁▁▁▇▁▁▁▁
-##      1.6e+09     1.6e+09      1.6e+09      1.6e+09      1.6e+09 ▇▇▇▇▇▇▇▇
-##      1.6e+09     1.6e+09      1.6e+09      1.6e+09      1.6e+09 ▇▇▇▇▇▇▇▇
-##  58716       80003.25    117698.5     143318.75    205564       ▃▇▁▇▃▁▁▃
-##  58934       79977.25    119152.5     143274.75    205602       ▃▇▁▇▃▁▁▃
-##    200         200          200          200          200       ▁▁▁▇▁▁▁▁
-##    200         200          200          200          200       ▁▁▁▇▁▁▁▁
-##      1.6e+09     1.6e+09      1.6e+09      1.6e+09      1.6e+09 ▇▇▇▇▇▇▇▇
-##      1.6e+09     1.6e+09      1.6e+09      1.6e+09      1.6e+09 ▇▇▇▇▇▇▇▇
-##     35.04       35.04        35.04        35.05        35.05    ▃▁▃▃▁▃▃▇
-##     31          52           60.5        834.25      3784       ▇▅▁▁▁▁▁▁
-##     79         100.25       106.5        115          200       ▂▇▅▁▁▁▁▁
-##     15          15           15           15           15       ▁▁▁▇▁▁▁▁
-##    -85.31      -85.31       -85.3        -85.3        -85.29    ▇▃▃▁▃▃▁▃
-##  18848       19128        19640        21304        21608       ▇▅▂▁▁▁▃▇
-##    928         960          976          976         1024       ▂▁▂▇▁▂▁▂
-##  12448       14818        16276        16792        18584       ▁▂▂▅▂▇▁▃
-##     10          19           22           23           33       ▁▃▁▅▇▁▂▁
-##   1938        2340.88      2542.16      2811.62      4687.75    ▃▇▅▂▁▁▁▁
-##   2127.27     2338.92      2473.77      2676.18      4681.83    ▇▅▂▁▁▁▁▁
-##    628.38      719.96       752.36       801.12      1389.82    ▅▇▂▁▁▁▁▁
-##    624.39      727.18       752.64       789.63      1365.58    ▂▇▂▁▁▁▁▁
-##    107.36      131.37       139.95       151.33       323.72    ▆▇▁▁▁▁▁▁
-##    106.05      127.44       136.11       144.77       311.88    ▅▇▁▁▁▁▁▁
-##      0           0            0.2          0.34         0.94    ▇▅▅▂▂▁▁▁
-##      0           0            0.19         0.39         1.24    ▇▅▂▁▁▁▁▁
-##      3.24        5.92         6.92         8.12        19.85    ▂▇▅▁▁▁▁▁
-##      2.15        5.15         6.81         8.65        28.84    ▅▇▃▁▁▁▁▁
-##      0.04        0.79         1.14         1.66         4.5     ▃▇▅▃▁▁▁▁
-##      0.01        0.75         1.16         1.72         6.38    ▆▇▃▂▁▁▁▁
-##    418         483          535.5        586         3055       ▇▁▁▁▁▁▁▁
-##    119         120          120          120          120       ▁▁▁▁▁▁▁▇
-##     11.77       13.48        14.18        15.34        26.66    ▆▇▂▁▁▁▁▁
-##     11.47       13.58        14.05        14.92        26.28    ▂▇▂▁▁▁▁▁
-##     11.77       13.48        14.18        15.34        23.25    ▃▇▅▁▁▁▁▁
-##     11.47       13.58        14.05        14.9         23.09    ▁▇▃▂▁▁▁▁
-##     18.36       21.25        22.3         23.36        45.65    ▆▇▁▁▁▁▁▁
-##     18.9        21.03        22.02        22.85        48.9     ▇▃▁▁▁▁▁▁
-##     18.36       21.25        22.3         23.36        42.94    ▅▇▁▁▁▁▁▁
-##     18.9        21.03        22.02        22.85        45.67    ▇▅▁▁▁▁▁▁
-##     17.83       20.46        21.46        22.41        44.32    ▇▇▁▁▁▁▁▁
-##     17.27       20.23        21.06        21.85        43.61    ▅▇▁▁▁▁▁▁
-##     17.83       20.46        21.46        22.41        37.4     ▃▇▂▁▁▁▁▁
-##     17.27       20.23        21.06        21.85        37.17    ▂▇▂▁▁▁▁▁
-##     63          69           71           73          106       ▃▇▂▁▁▁▁▁
-##     62          68           70           71.75       105       ▃▇▂▁▁▁▁▁
-##    986.25      988.59       989.51       989.97       990.4     ▁▁▁▂▅▃▇▇
-##    200         200          200          201          201       ▇▁▁▁▁▁▁▆
-##    200         200          200          200          200       ▁▁▁▇▁▁▁▁
-##      1.6e+09     1.6e+09      1.6e+09      1.6e+09      1.6e+09 ▆▇▇▇▇▇▇▆
-##      1.6e+09     1.6e+09      1.6e+09      1.6e+09      1.6e+09 ▇▇▇▇▇▇▇▇
-##    -79         -71          -65          -61          -54       ▃▁▃▂▇▃▂▃
-##      2           2            2            2            2       ▁▁▁▇▁▁▁▁
-##      2           2            2            2            2       ▁▁▁▇▁▁▁▁
-##      1           1            1            1            1       ▁▁▁▇▁▁▁▁
-##      2           2            2            2            2       ▁▁▁▇▁▁▁▁
-##      2           2            2            2            2       ▁▁▁▇▁▁▁▁
-##      2           2            2            2            2       ▁▁▁▇▁▁▁▁
-##      2           2            2            2            2       ▁▁▁▇▁▁▁▁
-##      1           1            1            2            2       ▇▁▁▁▁▁▁▆
-##      0           0            0            0            0       ▁▁▁▇▁▁▁▁
-##      2           2            2            2            2       ▁▁▁▇▁▁▁▁
-##      2           2            2            2            2       ▁▁▁▇▁▁▁▁
-##      1.6e+12     1.6e+12      1.6e+12      1.6e+12      1.6e+12 ▇▇▇▇▇▇▇▇
-##    771         839          863.5        883         4657       ▇▁▁▁▁▁▁▁
-##    709         736          744          759         3977       ▇▁▁▁▁▁▁▁
-##    698         744          766          776         3957       ▇▁▁▁▁▁▁▁
-##    693         732.25       742          755.75      3813       ▇▁▁▁▁▁▁▁
-##  87491       89171.5      90127        90970.75     92649       ▃▃▇▇▇▇▅▃
-##      4.02        4.02         4.02         4.02         4.02    ▁▁▁▇▁▁▁▁
-##      0          52.25       104.5        156.75       209       ▇▇▇▇▇▇▇▇
-## 
-## ── Variable type:POSIXct ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-##       variable missing complete   n        min        max     median
-##  timestamp-iso       0      210 210 2019-06-01 2019-06-01 2019-06-01
-##  n_unique
-##       209</code></pre>
+<pre class="r"><code>air_quality &lt;- read_csv(&quot;01_data/CSCDC+Dataset+Preview/air_quality_csv/all.csv&quot;)
+
+skim(air_quality)  %&gt;% kable()</code></pre>
+<p>Skim summary statistics<br />
+n obs: 210<br />
+n variables: 93</p>
+<p>Variable type: character</p>
+<table>
+<thead>
+<tr class="header">
+<th align="center">variable</th>
+<th align="center">missing</th>
+<th align="center">complete</th>
+<th align="center">n</th>
+<th align="center">min</th>
+<th align="center">max</th>
+<th align="center">empty</th>
+<th align="center">n_unique</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">DateTime</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">20</td>
+<td align="center">20</td>
+<td align="center">0</td>
+<td align="center">209</td>
+</tr>
+<tr class="even">
+<td align="center">Geo</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">14</td>
+<td align="center">14</td>
+<td align="center">0</td>
+<td align="center">7</td>
+</tr>
+<tr class="odd">
+<td align="center">hardwarediscovered</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">53</td>
+<td align="center">54</td>
+<td align="center">0</td>
+<td align="center">2</td>
+</tr>
+<tr class="even">
+<td align="center">location</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">21</td>
+<td align="center">21</td>
+<td align="center">0</td>
+<td align="center">7</td>
+</tr>
+<tr class="odd">
+<td align="center">nicename</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">11</td>
+<td align="center">12</td>
+<td align="center">0</td>
+<td align="center">7</td>
+</tr>
+<tr class="even">
+<td align="center">place</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">7</td>
+<td align="center">7</td>
+<td align="center">0</td>
+<td align="center">1</td>
+</tr>
+<tr class="odd">
+<td align="center">pm2.5_aqi_color</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">14</td>
+<td align="center">14</td>
+<td align="center">0</td>
+<td align="center">25</td>
+</tr>
+<tr class="even">
+<td align="center">pm2.5_aqi_color_b</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">14</td>
+<td align="center">14</td>
+<td align="center">0</td>
+<td align="center">22</td>
+</tr>
+<tr class="odd">
+<td align="center">SensorId</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">17</td>
+<td align="center">17</td>
+<td align="center">0</td>
+<td align="center">7</td>
+</tr>
+<tr class="even">
+<td align="center">wlstate</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">9</td>
+<td align="center">9</td>
+<td align="center">0</td>
+<td align="center">1</td>
+</tr>
+</tbody>
+</table>
+<p>Variable type: numeric</p>
+<table>
+<thead>
+<tr class="header">
+<th align="center">variable</th>
+<th align="center">missing</th>
+<th align="center">complete</th>
+<th align="center">n</th>
+<th align="center">mean</th>
+<th align="center">sd</th>
+<th align="center">p0</th>
+<th align="center">p25</th>
+<th align="center">p50</th>
+<th align="center">p75</th>
+<th align="center">p100</th>
+<th align="center">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">Adc</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">0.0057</td>
+<td align="center">0.014</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0.04</td>
+<td align="center">▇▁▁▁▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="center">current_dewpoint_f</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">54.89</td>
+<td align="center">1.67</td>
+<td align="center">52</td>
+<td align="center">54</td>
+<td align="center">55</td>
+<td align="center">56</td>
+<td align="center">59</td>
+<td align="center">▂▃▇▇▃▂▂▁</td>
+</tr>
+<tr class="odd">
+<td align="center">current_humidity</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">27.92</td>
+<td align="center">2</td>
+<td align="center">23</td>
+<td align="center">26</td>
+<td align="center">28</td>
+<td align="center">29</td>
+<td align="center">33</td>
+<td align="center">▁▂▅▇▃▃▂▁</td>
+</tr>
+<tr class="even">
+<td align="center">current_temp_f</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">93.03</td>
+<td align="center">2.48</td>
+<td align="center">85</td>
+<td align="center">91</td>
+<td align="center">93</td>
+<td align="center">95</td>
+<td align="center">97</td>
+<td align="center">▁▁▂▇▅▇▆▇</td>
+</tr>
+<tr class="odd">
+<td align="center">hardwareversion</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">2</td>
+<td align="center">0</td>
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">▁▁▁▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="center">httpsends</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">4850.55</td>
+<td align="center">382.95</td>
+<td align="center">4410</td>
+<td align="center">4512.25</td>
+<td align="center">4597.5</td>
+<td align="center">5267</td>
+<td align="center">5422</td>
+<td align="center">▇▆▁▁▁▁▅▅</td>
+</tr>
+<tr class="odd">
+<td align="center">httpsuccess</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">4850.26</td>
+<td align="center">382.89</td>
+<td align="center">4410</td>
+<td align="center">4512</td>
+<td align="center">4597</td>
+<td align="center">5266.75</td>
+<td align="center">5422</td>
+<td align="center">▇▆▁▁▁▁▅▅</td>
+</tr>
+<tr class="even">
+<td align="center">Id</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">1501.43</td>
+<td align="center">20.34</td>
+<td align="center">1458</td>
+<td align="center">1486</td>
+<td align="center">1502</td>
+<td align="center">1516</td>
+<td align="center">1544</td>
+<td align="center">▃▅▇▇▇▇▅▃</td>
+</tr>
+<tr class="odd">
+<td align="center">key1_count</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">113398.93</td>
+<td align="center">45516.37</td>
+<td align="center">58514</td>
+<td align="center">80016.25</td>
+<td align="center">108616.5</td>
+<td align="center">143178.75</td>
+<td align="center">2e+05</td>
+<td align="center">▃▇▃▃▃▁▁▃</td>
+</tr>
+<tr class="even">
+<td align="center">key1_count_b</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">115563.64</td>
+<td align="center">45768.72</td>
+<td align="center">58918</td>
+<td align="center">79996.25</td>
+<td align="center">119216.5</td>
+<td align="center">143366.75</td>
+<td align="center">205649</td>
+<td align="center">▃▇▁▇▃▁▁▃</td>
+</tr>
+<tr class="odd">
+<td align="center">key1_response</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">200</td>
+<td align="center">0</td>
+<td align="center">200</td>
+<td align="center">200</td>
+<td align="center">200</td>
+<td align="center">200</td>
+<td align="center">200</td>
+<td align="center">▁▁▁▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="center">key1_response_b</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">200</td>
+<td align="center">0</td>
+<td align="center">200</td>
+<td align="center">200</td>
+<td align="center">200</td>
+<td align="center">200</td>
+<td align="center">200</td>
+<td align="center">▁▁▁▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="center">key1_response_date</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">1.6e+09</td>
+<td align="center">1042.1</td>
+<td align="center">1.6e+09</td>
+<td align="center">1.6e+09</td>
+<td align="center">1.6e+09</td>
+<td align="center">1.6e+09</td>
+<td align="center">1.6e+09</td>
+<td align="center">▇▇▇▇▇▇▇▇</td>
+</tr>
+<tr class="even">
+<td align="center">key1_response_date_b</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">1.6e+09</td>
+<td align="center">1042.18</td>
+<td align="center">1.6e+09</td>
+<td align="center">1.6e+09</td>
+<td align="center">1.6e+09</td>
+<td align="center">1.6e+09</td>
+<td align="center">1.6e+09</td>
+<td align="center">▇▇▇▇▇▇▇▇</td>
+</tr>
+<tr class="odd">
+<td align="center">key2_count</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">115296.93</td>
+<td align="center">45759.79</td>
+<td align="center">58716</td>
+<td align="center">80003.25</td>
+<td align="center">117698.5</td>
+<td align="center">143318.75</td>
+<td align="center">205564</td>
+<td align="center">▃▇▁▇▃▁▁▃</td>
+</tr>
+<tr class="even">
+<td align="center">key2_count_b</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">115524.5</td>
+<td align="center">45749.59</td>
+<td align="center">58934</td>
+<td align="center">79977.25</td>
+<td align="center">119152.5</td>
+<td align="center">143274.75</td>
+<td align="center">205602</td>
+<td align="center">▃▇▁▇▃▁▁▃</td>
+</tr>
+<tr class="odd">
+<td align="center">key2_response</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">200</td>
+<td align="center">0</td>
+<td align="center">200</td>
+<td align="center">200</td>
+<td align="center">200</td>
+<td align="center">200</td>
+<td align="center">200</td>
+<td align="center">▁▁▁▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="center">key2_response_b</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">200</td>
+<td align="center">0</td>
+<td align="center">200</td>
+<td align="center">200</td>
+<td align="center">200</td>
+<td align="center">200</td>
+<td align="center">200</td>
+<td align="center">▁▁▁▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="center">key2_response_date</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">1.6e+09</td>
+<td align="center">1042.15</td>
+<td align="center">1.6e+09</td>
+<td align="center">1.6e+09</td>
+<td align="center">1.6e+09</td>
+<td align="center">1.6e+09</td>
+<td align="center">1.6e+09</td>
+<td align="center">▇▇▇▇▇▇▇▇</td>
+</tr>
+<tr class="even">
+<td align="center">key2_response_date_b</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">1.6e+09</td>
+<td align="center">1042.24</td>
+<td align="center">1.6e+09</td>
+<td align="center">1.6e+09</td>
+<td align="center">1.6e+09</td>
+<td align="center">1.6e+09</td>
+<td align="center">1.6e+09</td>
+<td align="center">▇▇▇▇▇▇▇▇</td>
+</tr>
+<tr class="odd">
+<td align="center">lat</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">35.04</td>
+<td align="center">0.0021</td>
+<td align="center">35.04</td>
+<td align="center">35.04</td>
+<td align="center">35.04</td>
+<td align="center">35.05</td>
+<td align="center">35.05</td>
+<td align="center">▃▁▃▃▁▃▃▇</td>
+</tr>
+<tr class="even">
+<td align="center">latency</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">436.05</td>
+<td align="center">517.46</td>
+<td align="center">31</td>
+<td align="center">52</td>
+<td align="center">60.5</td>
+<td align="center">834.25</td>
+<td align="center">3784</td>
+<td align="center">▇▅▁▁▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="center">latency_b</td>
+<td align="center">120</td>
+<td align="center">90</td>
+<td align="center">210</td>
+<td align="center">112.62</td>
+<td align="center">23.96</td>
+<td align="center">79</td>
+<td align="center">100.25</td>
+<td align="center">106.5</td>
+<td align="center">115</td>
+<td align="center">200</td>
+<td align="center">▂▇▅▁▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="center">loggingrate</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">15</td>
+<td align="center">0</td>
+<td align="center">15</td>
+<td align="center">15</td>
+<td align="center">15</td>
+<td align="center">15</td>
+<td align="center">15</td>
+<td align="center">▁▁▁▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="center">lon</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">-85.3</td>
+<td align="center">0.0056</td>
+<td align="center">-85.31</td>
+<td align="center">-85.31</td>
+<td align="center">-85.3</td>
+<td align="center">-85.3</td>
+<td align="center">-85.29</td>
+<td align="center">▇▃▃▁▃▃▁▃</td>
+</tr>
+<tr class="even">
+<td align="center">Mem</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">20119.96</td>
+<td align="center">1034.14</td>
+<td align="center">18848</td>
+<td align="center">19128</td>
+<td align="center">19640</td>
+<td align="center">21304</td>
+<td align="center">21608</td>
+<td align="center">▇▅▂▁▁▁▃▇</td>
+</tr>
+<tr class="odd">
+<td align="center">memcs</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">974.4</td>
+<td align="center">27.9</td>
+<td align="center">928</td>
+<td align="center">960</td>
+<td align="center">976</td>
+<td align="center">976</td>
+<td align="center">1024</td>
+<td align="center">▂▁▂▇▁▂▁▂</td>
+</tr>
+<tr class="even">
+<td align="center">memfb</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">15868.34</td>
+<td align="center">1501.6</td>
+<td align="center">12448</td>
+<td align="center">14818</td>
+<td align="center">16276</td>
+<td align="center">16792</td>
+<td align="center">18584</td>
+<td align="center">▁▂▂▅▂▇▁▃</td>
+</tr>
+<tr class="odd">
+<td align="center">memfrag</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">21.13</td>
+<td align="center">4.56</td>
+<td align="center">10</td>
+<td align="center">19</td>
+<td align="center">22</td>
+<td align="center">23</td>
+<td align="center">33</td>
+<td align="center">▁▃▁▅▇▁▂▁</td>
+</tr>
+<tr class="even">
+<td align="center">p_0_3_um</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">2608.91</td>
+<td align="center">390.32</td>
+<td align="center">1938</td>
+<td align="center">2340.88</td>
+<td align="center">2542.16</td>
+<td align="center">2811.62</td>
+<td align="center">4687.75</td>
+<td align="center">▃▇▅▂▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="center">p_0_3_um_b</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">2557.19</td>
+<td align="center">320.02</td>
+<td align="center">2127.27</td>
+<td align="center">2338.92</td>
+<td align="center">2473.77</td>
+<td align="center">2676.18</td>
+<td align="center">4681.83</td>
+<td align="center">▇▅▂▁▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="center">p_0_5_um</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">777.34</td>
+<td align="center">98.03</td>
+<td align="center">628.38</td>
+<td align="center">719.96</td>
+<td align="center">752.36</td>
+<td align="center">801.12</td>
+<td align="center">1389.82</td>
+<td align="center">▅▇▂▁▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="center">p_0_5_um_b</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">766.04</td>
+<td align="center">75.05</td>
+<td align="center">624.39</td>
+<td align="center">727.18</td>
+<td align="center">752.64</td>
+<td align="center">789.63</td>
+<td align="center">1365.58</td>
+<td align="center">▂▇▂▁▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="center">p_1_0_um</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">145.46</td>
+<td align="center">27.04</td>
+<td align="center">107.36</td>
+<td align="center">131.37</td>
+<td align="center">139.95</td>
+<td align="center">151.33</td>
+<td align="center">323.72</td>
+<td align="center">▆▇▁▁▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="center">p_1_0_um_b</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">139.32</td>
+<td align="center">23.18</td>
+<td align="center">106.05</td>
+<td align="center">127.44</td>
+<td align="center">136.11</td>
+<td align="center">144.77</td>
+<td align="center">311.88</td>
+<td align="center">▅▇▁▁▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="center">p_10_0_um</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">0.24</td>
+<td align="center">0.23</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0.2</td>
+<td align="center">0.34</td>
+<td align="center">0.94</td>
+<td align="center">▇▅▅▂▂▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="center">p_10_0_um_b</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">0.25</td>
+<td align="center">0.28</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0.19</td>
+<td align="center">0.39</td>
+<td align="center">1.24</td>
+<td align="center">▇▅▂▁▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="center">p_2_5_um</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">7.29</td>
+<td align="center">2.33</td>
+<td align="center">3.24</td>
+<td align="center">5.92</td>
+<td align="center">6.92</td>
+<td align="center">8.12</td>
+<td align="center">19.85</td>
+<td align="center">▂▇▅▁▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="center">p_2_5_um_b</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">7.3</td>
+<td align="center">3.29</td>
+<td align="center">2.15</td>
+<td align="center">5.15</td>
+<td align="center">6.81</td>
+<td align="center">8.65</td>
+<td align="center">28.84</td>
+<td align="center">▅▇▃▁▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="center">p_5_0_um</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">1.25</td>
+<td align="center">0.65</td>
+<td align="center">0.04</td>
+<td align="center">0.79</td>
+<td align="center">1.14</td>
+<td align="center">1.66</td>
+<td align="center">4.5</td>
+<td align="center">▃▇▅▃▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="center">p_5_0_um_b</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">1.39</td>
+<td align="center">0.94</td>
+<td align="center">0.01</td>
+<td align="center">0.75</td>
+<td align="center">1.16</td>
+<td align="center">1.72</td>
+<td align="center">6.38</td>
+<td align="center">▆▇▃▂▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="center">pa_latency</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">558.8</td>
+<td align="center">195.45</td>
+<td align="center">418</td>
+<td align="center">483</td>
+<td align="center">535.5</td>
+<td align="center">586</td>
+<td align="center">3055</td>
+<td align="center">▇▁▁▁▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="center">period</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">119.97</td>
+<td align="center">0.17</td>
+<td align="center">119</td>
+<td align="center">120</td>
+<td align="center">120</td>
+<td align="center">120</td>
+<td align="center">120</td>
+<td align="center">▁▁▁▁▁▁▁▇</td>
+</tr>
+<tr class="even">
+<td align="center">pm1_0_atm</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">14.69</td>
+<td align="center">2.02</td>
+<td align="center">11.77</td>
+<td align="center">13.48</td>
+<td align="center">14.18</td>
+<td align="center">15.34</td>
+<td align="center">26.66</td>
+<td align="center">▆▇▂▁▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="center">pm1_0_atm_b</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">14.39</td>
+<td align="center">1.57</td>
+<td align="center">11.47</td>
+<td align="center">13.58</td>
+<td align="center">14.05</td>
+<td align="center">14.92</td>
+<td align="center">26.28</td>
+<td align="center">▂▇▂▁▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="center">pm1_0_cf_1</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">14.62</td>
+<td align="center">1.79</td>
+<td align="center">11.77</td>
+<td align="center">13.48</td>
+<td align="center">14.18</td>
+<td align="center">15.34</td>
+<td align="center">23.25</td>
+<td align="center">▃▇▅▁▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="center">pm1_0_cf_1_b</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">14.35</td>
+<td align="center">1.39</td>
+<td align="center">11.47</td>
+<td align="center">13.58</td>
+<td align="center">14.05</td>
+<td align="center">14.9</td>
+<td align="center">23.09</td>
+<td align="center">▁▇▃▂▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="center">pm10_0_atm</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">23</td>
+<td align="center">3.45</td>
+<td align="center">18.36</td>
+<td align="center">21.25</td>
+<td align="center">22.3</td>
+<td align="center">23.36</td>
+<td align="center">45.65</td>
+<td align="center">▆▇▁▁▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="center">pm10_0_atm_b</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">22.5</td>
+<td align="center">3.18</td>
+<td align="center">18.9</td>
+<td align="center">21.03</td>
+<td align="center">22.02</td>
+<td align="center">22.85</td>
+<td align="center">48.9</td>
+<td align="center">▇▃▁▁▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="center">pm10_0_cf_1</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">22.95</td>
+<td align="center">3.24</td>
+<td align="center">18.36</td>
+<td align="center">21.25</td>
+<td align="center">22.3</td>
+<td align="center">23.36</td>
+<td align="center">42.94</td>
+<td align="center">▅▇▁▁▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="center">pm10_0_cf_1_b</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">22.47</td>
+<td align="center">2.96</td>
+<td align="center">18.9</td>
+<td align="center">21.03</td>
+<td align="center">22.02</td>
+<td align="center">22.85</td>
+<td align="center">45.67</td>
+<td align="center">▇▅▁▁▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="center">pm2_5_atm</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">22.12</td>
+<td align="center">3.35</td>
+<td align="center">17.83</td>
+<td align="center">20.46</td>
+<td align="center">21.46</td>
+<td align="center">22.41</td>
+<td align="center">44.32</td>
+<td align="center">▇▇▁▁▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="center">pm2_5_atm_b</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">21.51</td>
+<td align="center">2.73</td>
+<td align="center">17.27</td>
+<td align="center">20.23</td>
+<td align="center">21.06</td>
+<td align="center">21.85</td>
+<td align="center">43.61</td>
+<td align="center">▅▇▁▁▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="center">pm2_5_cf_1</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">21.97</td>
+<td align="center">2.75</td>
+<td align="center">17.83</td>
+<td align="center">20.46</td>
+<td align="center">21.46</td>
+<td align="center">22.41</td>
+<td align="center">37.4</td>
+<td align="center">▃▇▂▁▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="center">pm2_5_cf_1_b</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">21.4</td>
+<td align="center">2.24</td>
+<td align="center">17.27</td>
+<td align="center">20.23</td>
+<td align="center">21.06</td>
+<td align="center">21.85</td>
+<td align="center">37.17</td>
+<td align="center">▂▇▂▁▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="center">pm2.5_aqi</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">71.75</td>
+<td align="center">5.86</td>
+<td align="center">63</td>
+<td align="center">69</td>
+<td align="center">71</td>
+<td align="center">73</td>
+<td align="center">106</td>
+<td align="center">▃▇▂▁▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="center">pm2.5_aqi_b</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">70.56</td>
+<td align="center">4.79</td>
+<td align="center">62</td>
+<td align="center">68</td>
+<td align="center">70</td>
+<td align="center">71.75</td>
+<td align="center">105</td>
+<td align="center">▃▇▂▁▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="center">pressure</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">989.36</td>
+<td align="center">0.71</td>
+<td align="center">986.25</td>
+<td align="center">988.59</td>
+<td align="center">989.51</td>
+<td align="center">989.97</td>
+<td align="center">990.4</td>
+<td align="center">▁▁▁▂▅▃▇▇</td>
+</tr>
+<tr class="odd">
+<td align="center">response</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">200.43</td>
+<td align="center">0.5</td>
+<td align="center">200</td>
+<td align="center">200</td>
+<td align="center">200</td>
+<td align="center">201</td>
+<td align="center">201</td>
+<td align="center">▇▁▁▁▁▁▁▆</td>
+</tr>
+<tr class="even">
+<td align="center">response_b</td>
+<td align="center">120</td>
+<td align="center">90</td>
+<td align="center">210</td>
+<td align="center">200</td>
+<td align="center">0</td>
+<td align="center">200</td>
+<td align="center">200</td>
+<td align="center">200</td>
+<td align="center">200</td>
+<td align="center">200</td>
+<td align="center">▁▁▁▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="center">response_date</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">1.6e+09</td>
+<td align="center">1044.13</td>
+<td align="center">1.6e+09</td>
+<td align="center">1.6e+09</td>
+<td align="center">1.6e+09</td>
+<td align="center">1.6e+09</td>
+<td align="center">1.6e+09</td>
+<td align="center">▆▇▇▇▇▇▇▆</td>
+</tr>
+<tr class="even">
+<td align="center">response_date_b</td>
+<td align="center">120</td>
+<td align="center">90</td>
+<td align="center">210</td>
+<td align="center">1.6e+09</td>
+<td align="center">1045.53</td>
+<td align="center">1.6e+09</td>
+<td align="center">1.6e+09</td>
+<td align="center">1.6e+09</td>
+<td align="center">1.6e+09</td>
+<td align="center">1.6e+09</td>
+<td align="center">▇▇▇▇▇▇▇▇</td>
+</tr>
+<tr class="odd">
+<td align="center">rssi</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">-65.52</td>
+<td align="center">6.36</td>
+<td align="center">-79</td>
+<td align="center">-71</td>
+<td align="center">-65</td>
+<td align="center">-61</td>
+<td align="center">-54</td>
+<td align="center">▃▁▃▂▇▃▂▃</td>
+</tr>
+<tr class="even">
+<td align="center">status_0</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">2</td>
+<td align="center">0</td>
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">▁▁▁▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="center">status_1</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">2</td>
+<td align="center">0</td>
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">▁▁▁▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="center">status_10</td>
+<td align="center">120</td>
+<td align="center">90</td>
+<td align="center">210</td>
+<td align="center">1</td>
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center">1</td>
+<td align="center">1</td>
+<td align="center">1</td>
+<td align="center">1</td>
+<td align="center">▁▁▁▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="center">status_2</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">2</td>
+<td align="center">0</td>
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">▁▁▁▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="center">status_3</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">2</td>
+<td align="center">0</td>
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">▁▁▁▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="center">status_4</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">2</td>
+<td align="center">0</td>
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">▁▁▁▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="center">status_5</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">2</td>
+<td align="center">0</td>
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">▁▁▁▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="center">status_6</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">1.43</td>
+<td align="center">0.5</td>
+<td align="center">1</td>
+<td align="center">1</td>
+<td align="center">1</td>
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">▇▁▁▁▁▁▁▆</td>
+</tr>
+<tr class="even">
+<td align="center">status_7</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">▁▁▁▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="center">status_8</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">2</td>
+<td align="center">0</td>
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">▁▁▁▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="center">status_9</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">2</td>
+<td align="center">0</td>
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">▁▁▁▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="center">timestamp</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">1.6e+12</td>
+<td align="center">1e+06</td>
+<td align="center">1.6e+12</td>
+<td align="center">1.6e+12</td>
+<td align="center">1.6e+12</td>
+<td align="center">1.6e+12</td>
+<td align="center">1.6e+12</td>
+<td align="center">▇▇▇▇▇▇▇▇</td>
+</tr>
+<tr class="even">
+<td align="center">ts_latency</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">906.79</td>
+<td align="center">341.16</td>
+<td align="center">771</td>
+<td align="center">839</td>
+<td align="center">863.5</td>
+<td align="center">883</td>
+<td align="center">4657</td>
+<td align="center">▇▁▁▁▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="center">ts_latency_b</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">800.22</td>
+<td align="center">351.61</td>
+<td align="center">709</td>
+<td align="center">736</td>
+<td align="center">744</td>
+<td align="center">759</td>
+<td align="center">3977</td>
+<td align="center">▇▁▁▁▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="center">ts_s_latency</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">815.89</td>
+<td align="center">337.64</td>
+<td align="center">698</td>
+<td align="center">744</td>
+<td align="center">766</td>
+<td align="center">776</td>
+<td align="center">3957</td>
+<td align="center">▇▁▁▁▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="center">ts_s_latency_b</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">802.45</td>
+<td align="center">368.85</td>
+<td align="center">693</td>
+<td align="center">732.25</td>
+<td align="center">742</td>
+<td align="center">755.75</td>
+<td align="center">3813</td>
+<td align="center">▇▁▁▁▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="center">uptime</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">90089.12</td>
+<td align="center">1223.87</td>
+<td align="center">87491</td>
+<td align="center">89171.5</td>
+<td align="center">90127</td>
+<td align="center">90970.75</td>
+<td align="center">92649</td>
+<td align="center">▃▃▇▇▇▇▅▃</td>
+</tr>
+<tr class="odd">
+<td align="center">version</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">4.02</td>
+<td align="center">0</td>
+<td align="center">4.02</td>
+<td align="center">4.02</td>
+<td align="center">4.02</td>
+<td align="center">4.02</td>
+<td align="center">4.02</td>
+<td align="center">▁▁▁▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="center">X1</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">104.5</td>
+<td align="center">60.77</td>
+<td align="center">0</td>
+<td align="center">52.25</td>
+<td align="center">104.5</td>
+<td align="center">156.75</td>
+<td align="center">209</td>
+<td align="center">▇▇▇▇▇▇▇▇</td>
+</tr>
+</tbody>
+</table>
+<p>Variable type: POSIXct</p>
+<table>
+<thead>
+<tr class="header">
+<th align="center">variable</th>
+<th align="center">missing</th>
+<th align="center">complete</th>
+<th align="center">n</th>
+<th align="center">min</th>
+<th align="center">max</th>
+<th align="center">median</th>
+<th align="center">n_unique</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">timestamp-iso</td>
+<td align="center">0</td>
+<td align="center">210</td>
+<td align="center">210</td>
+<td align="center">2019-06-01</td>
+<td align="center">2019-06-01</td>
+<td align="center">2019-06-01</td>
+<td align="center">209</td>
+</tr>
+</tbody>
+</table>
 <p>We’ll do the same wiht the video events:</p>
-<pre class="r"><code>video_events &lt;- read_csv(&quot;01_data/CSCDC+Dataset+Preview/video_event_csv/all.csv&quot;)</code></pre>
-<pre><code>## Warning: Missing column names filled in: 'X1' [1]</code></pre>
-<pre><code>## Parsed with column specification:
-## cols(
-##   X1 = col_double(),
-##   camera_id = col_character(),
-##   hit_counts = col_double(),
-##   id = col_character(),
-##   intersection = col_logical(),
-##   label = col_character(),
-##   locations = col_character(),
-##   pole_id = col_character(),
-##   timestamp = col_double(),
-##   `timestamp-iso` = col_datetime(format = &quot;&quot;)
-## )</code></pre>
-<pre class="r"><code>skim(video_events)</code></pre>
-<pre><code>## Skim summary statistics
-##  n obs: 8773 
-##  n variables: 10 
-## 
-## ── Variable type:character ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-##   variable missing complete    n min  max empty n_unique
-##  camera_id       0     8773 8773  17   18     0        9
-##         id       0     8773 8773  36   36     0     8773
-##      label       0     8773 8773   3   12     0        7
-##  locations       0     8773 8773 231 3238     0     8773
-##    pole_id       0     8773 8773  13   14     0        9
-## 
-## ── Variable type:logical ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-##      variable missing complete    n mean                       count
-##  intersection       0     8773 8773 0.75 TRU: 6622, FAL: 2151, NA: 0
-## 
-## ── Variable type:numeric ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-##    variable missing complete    n       mean         sd      p0        p25
-##  hit_counts       0     8773 8773    4.45          3.84 2          2      
-##   timestamp       0     8773 8773    1.6e+12 1050892.29 1.6e+12    1.6e+12
-##          X1       0     8773 8773 4386          2532.69 0       2193      
-##         p50        p75       p100     hist
-##     3          5         27       ▇▁▁▁▁▁▁▁
-##     1.6e+12    1.6e+12    1.6e+12 ▇▇▇▇▆▇▇▇
-##  4386       6579       8772       ▇▇▇▇▇▇▇▇
-## 
-## ── Variable type:POSIXct ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-##       variable missing complete    n        min        max     median
-##  timestamp-iso       0     8773 8773 2019-06-01 2019-06-01 2019-06-01
-##  n_unique
-##      8386</code></pre>
+<pre class="r"><code>video_events &lt;- read_csv(&quot;01_data/CSCDC+Dataset+Preview/video_event_csv/all.csv&quot;)
+skim(video_events)  %&gt;% kable()</code></pre>
+<p>Skim summary statistics<br />
+n obs: 8773<br />
+n variables: 10</p>
+<p>Variable type: character</p>
+<table>
+<thead>
+<tr class="header">
+<th align="center">variable</th>
+<th align="center">missing</th>
+<th align="center">complete</th>
+<th align="center">n</th>
+<th align="center">min</th>
+<th align="center">max</th>
+<th align="center">empty</th>
+<th align="center">n_unique</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">camera_id</td>
+<td align="center">0</td>
+<td align="center">8773</td>
+<td align="center">8773</td>
+<td align="center">17</td>
+<td align="center">18</td>
+<td align="center">0</td>
+<td align="center">9</td>
+</tr>
+<tr class="even">
+<td align="center">id</td>
+<td align="center">0</td>
+<td align="center">8773</td>
+<td align="center">8773</td>
+<td align="center">36</td>
+<td align="center">36</td>
+<td align="center">0</td>
+<td align="center">8773</td>
+</tr>
+<tr class="odd">
+<td align="center">label</td>
+<td align="center">0</td>
+<td align="center">8773</td>
+<td align="center">8773</td>
+<td align="center">3</td>
+<td align="center">12</td>
+<td align="center">0</td>
+<td align="center">7</td>
+</tr>
+<tr class="even">
+<td align="center">locations</td>
+<td align="center">0</td>
+<td align="center">8773</td>
+<td align="center">8773</td>
+<td align="center">231</td>
+<td align="center">3238</td>
+<td align="center">0</td>
+<td align="center">8773</td>
+</tr>
+<tr class="odd">
+<td align="center">pole_id</td>
+<td align="center">0</td>
+<td align="center">8773</td>
+<td align="center">8773</td>
+<td align="center">13</td>
+<td align="center">14</td>
+<td align="center">0</td>
+<td align="center">9</td>
+</tr>
+</tbody>
+</table>
+<p>Variable type: logical</p>
+<table>
+<thead>
+<tr class="header">
+<th align="center">variable</th>
+<th align="center">missing</th>
+<th align="center">complete</th>
+<th align="center">n</th>
+<th align="center">mean</th>
+<th align="center">count</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">intersection</td>
+<td align="center">0</td>
+<td align="center">8773</td>
+<td align="center">8773</td>
+<td align="center">0.75</td>
+<td align="center">TRU: 6622, FAL: 2151, NA: 0</td>
+</tr>
+</tbody>
+</table>
+<p>Variable type: numeric</p>
+<table>
+<thead>
+<tr class="header">
+<th align="center">variable</th>
+<th align="center">missing</th>
+<th align="center">complete</th>
+<th align="center">n</th>
+<th align="center">mean</th>
+<th align="center">sd</th>
+<th align="center">p0</th>
+<th align="center">p25</th>
+<th align="center">p50</th>
+<th align="center">p75</th>
+<th align="center">p100</th>
+<th align="center">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">hit_counts</td>
+<td align="center">0</td>
+<td align="center">8773</td>
+<td align="center">8773</td>
+<td align="center">4.45</td>
+<td align="center">3.84</td>
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">3</td>
+<td align="center">5</td>
+<td align="center">27</td>
+<td align="center">▇▁▁▁▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="center">timestamp</td>
+<td align="center">0</td>
+<td align="center">8773</td>
+<td align="center">8773</td>
+<td align="center">1.6e+12</td>
+<td align="center">1050892.29</td>
+<td align="center">1.6e+12</td>
+<td align="center">1.6e+12</td>
+<td align="center">1.6e+12</td>
+<td align="center">1.6e+12</td>
+<td align="center">1.6e+12</td>
+<td align="center">▇▇▇▇▆▇▇▇</td>
+</tr>
+<tr class="odd">
+<td align="center">X1</td>
+<td align="center">0</td>
+<td align="center">8773</td>
+<td align="center">8773</td>
+<td align="center">4386</td>
+<td align="center">2532.69</td>
+<td align="center">0</td>
+<td align="center">2193</td>
+<td align="center">4386</td>
+<td align="center">6579</td>
+<td align="center">8772</td>
+<td align="center">▇▇▇▇▇▇▇▇</td>
+</tr>
+</tbody>
+</table>
+<p>Variable type: POSIXct</p>
+<table>
+<thead>
+<tr class="header">
+<th align="center">variable</th>
+<th align="center">missing</th>
+<th align="center">complete</th>
+<th align="center">n</th>
+<th align="center">min</th>
+<th align="center">max</th>
+<th align="center">median</th>
+<th align="center">n_unique</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">timestamp-iso</td>
+<td align="center">0</td>
+<td align="center">8773</td>
+<td align="center">8773</td>
+<td align="center">2019-06-01</td>
+<td align="center">2019-06-01</td>
+<td align="center">2019-06-01</td>
+<td align="center">8386</td>
+</tr>
+</tbody>
+</table>
 
 
 
