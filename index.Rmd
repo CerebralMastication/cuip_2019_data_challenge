@@ -17,6 +17,7 @@ A preview of the whole dataset is in this repo. Let's pull in the data and take 
 Load up a few libraries
 ```{r include=FALSE}
 library(tidyverse)
+library(ggthemes) 
 library(skimr)
 library(janitor)
 library(GGally)
@@ -58,8 +59,64 @@ ggplot(aq_limited) +
 
 ```
 
-
 I don't know what it means exactly, but I bet there's hella traffic at douglas compared to the other stations. The volatility there is off the hook (comparatively)
+
+Let's look at the same data layed on the same graph. It looks like they all move together:
+
+
+```{r}
+
+ggplot(aq_limited) +
+ aes(x = timestamp_iso, y = p_2_5_um, color = nicename) +
+ geom_line(size = 1.2) +
+ labs(x = "Date & Time", y = "Sensor Level", title = "`p_2_5_um` by Station") +
+ theme_minimal() +
+ scale_colour_calc()
+
+```
+
+
+Well taht's sort of noisy. I wonder what the correlation is. Let's reshape the data to look at correlations quickly. 
+
+Do a quick reshape of the data to get the stations in columns
+```{r}
+
+aq_limited %>%
+  select(timestamp_iso, nicename, p_2_5_um) %>%
+  spread(nicename, p_2_5_um ) %>% head(10) %>% kable()
+```
+
+Oh... the data is irregular. Ok, so we need to put this junk in buckets. I'm thinking maybe 5 min buckets? Let's see if we can do that. Feels like a job for grouping by a floor value. We can get the 15 minute interval floors from the `lubridate` package. 
+
+```{r}
+
+library(lubridate)
+
+
+aq_limited %>%
+  select(timestamp_iso, nicename, p_2_5_um) %>%
+  spread(nicename, p_2_5_um) %>%
+  group_by(timemark = floor_date(timestamp_iso, "10 mins")) %>%
+  select(-timestamp_iso) %>%
+  summarize_all(mean, na.rm = TRUE) ->
+  aq_limited_wide
+
+kable(aq_limited_wide)
+
+
+```
+
+That looks better. Pretty short time period, of course. Only an hour of data. This will be more interesting with more data later. But we're just figuring out what's going on right now. 
+
+Now let's plot and look at the pairs plot with correlations:
+
+```{r fig.height=10, fig.width=10}
+aq_limited_wide %>%
+  select(-timemark) %>%
+  ggpairs()
+```
+
+
 
 Since we're slicing and dicing, let's look at temp vs. p_2_5_um for each station:
 
@@ -108,28 +165,32 @@ library(leaflet)
 
 ```{r}
 # grap the coordinates
-air_quality %>% 
+air_quality %>%
   group_by(nicename, lat, lon) %>%
   summarize(obs_count = n()) ->
   obs_location
 
-# turn them into an sf object
+# turn them into a spatial sf object for mapping
 obs_location_sf <-
   st_as_sf(obs_location,
            coords = c("lon", "lat"),
            crs = 4326)
 
-
+# build the map
 m1 <- mapview(obs_location_sf, legend = FALSE)
 
-l1 = addStaticLabels(m1,
-                     label = obs_location_sf$nicename,
-                     textsize = "20px",
-                     direction = 'left')
+# add the names as labels
+l1  <- addStaticLabels(
+  m1,
+  label = obs_location_sf$nicename,
+  textsize = "20px",
+  direction = 'left'
+)
+
 l1
 ```
 
-Cool, they are all right up one strip in Chattanooga. 
+Cool, they are all right up one strip in Chattanooga. I guess now we know what the MLK prefix in all the station names stands for. Looks like the stations are named after MLK and the cross street. Makes sense. 
 
 ## Video Events
 
