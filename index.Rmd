@@ -41,6 +41,7 @@ library(GGally)
 
 Grab the air quality data then give it a quick `skim` (from the `skimr` package):
 
+### Air Quality Skim
 ```{r echo=TRUE, message=FALSE, warning=FALSE, results='asis'}
 air_quality <- read_csv("01_data/CSCDC+Dataset+Preview/air_quality_csv/all.csv")
 
@@ -59,6 +60,8 @@ ggpairs(aq_limited)
 ```
 
 Well that's kind of interesting. I'm not sure what the different pm2.5 related fields mean. Maybe we can find out. 
+
+### Air Quality Detailed Plots
 
 Let's look at a few of these individually. 
 
@@ -162,7 +165,9 @@ ggplot(aq_limited) +
 
 we see the striping in temp because temps are reported as whole integers only. Makes for a funny pattern. 
 
-I don't know where this data was collected, but I suspect it was around Chattanooga. Let's plot the locations and see:
+### Air Quality Station Map
+
+When I first got these data, I don't know where it was collected, but I suspect it was around Chattanooga. Let's plot the locations and see:
 
 ```{r message=FALSE, warning=FALSE}
 library(ggmap)
@@ -202,7 +207,11 @@ Cool, they are all right up one strip in Chattanooga. I guess now we know what t
 
 ## Video Events
 
-We'll do the same with the video events:
+We should do something similar to the above with the video data. 
+
+We'll start with a `skim`:
+
+### Video Skim
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE, results='asis'}
 video_events <- read_csv("01_data/CSCDC+Dataset+Preview/video_event_csv/all.csv")
