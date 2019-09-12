@@ -1,3 +1,9 @@
+# zip files
+*.zip
+
+# big data directory
+01_data/CSCDC+Dataset/
+
 # History files
 .Rhistory
 .Rapp.history

@@ -1,27 +1,32 @@
 ---
-title: "CUIP Fully Data Analysis"
+title: "CUIP 2019 Data Challenge"
 author: "JD Long"
 date: "8/22/2019"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+This is an html render of the `index.Rmd` located here: https://github.com/CerebralMastication/cuip_2019_data_challenge
 
-## Fetch Data
+This is an example stub for analysis of the UTC 2019 CUIP data challenge to illustrarte setting up data access using R. 
 
-Download the full dataset from utccuip.com:
+This example script is `index.Rmd` which is rendered to html and served via this project's GitHub pages site:  https://cerebralmastication.github.io/cuip_2019_data_challenge/
 
-Block turned off as it only needs to run once
-```{r eval=FALSE}
-url <-"http://cscdc-2019.utccuip.com/CSCDC+Dataset.zip"
-dest_file <- "01_data/CSCDC+Dataset.zip"
+The data for the challenge can be found at: https://www.utccuip.com/smart-city-data-challenge-dataset
 
-download.file(url, dest_file)
-unzip(zipfile = dest_file, exdir = "01_data/CSCDC+Dataset/")
+A description of the challenge can be found at: http://www.pattersonconsultingtn.com/blog/cuip_smart_city_data_challenge_2019.html
 
-```
+We're supposed to be looking at PM 2.5. What is PM 2.5? Well I didn't know so I googled that junk. Came up with this helpful link:
+https://www.health.ny.gov/environmental/indoors/air/pmq_a.htm
+
+Looks like it's a level of 2.5 micron and smaller particulate matter. The article says it's sensitive to wind levels. This is not overly surprising. There's no atheists in foxholes and no air quality warnings in a hurricane. 
+
+A preview of the whole dataset is in this repo. Let's pull in the data and take a look at it. 
+
 
 Load up a few libraries
 ```{r include=FALSE}
@@ -30,7 +35,6 @@ library(ggthemes)
 library(skimr)
 library(janitor)
 library(GGally)
-library(lubridate)
 ```
 
 ## Air Quality Data
@@ -39,37 +43,23 @@ Grab the air quality data then give it a quick `skim` (from the `skimr` package)
 
 ### Air Quality Skim
 ```{r echo=TRUE, message=FALSE, warning=FALSE, results='asis'}
-air_quality <- read_csv("01_data/CSCDC+Dataset/air_quality_csv/all.csv")
+air_quality <- read_csv("01_data/CSCDC+Dataset+Preview/air_quality_csv/all.csv")
 
-## have to force the formatting on the timestamp. 
-air_quality %>%
-  mutate( `timestamp-iso` = mdy_hm(`timestamp-iso`)) ->
-  air_quality
-  
 skim(air_quality)  %>% kable()
 ```
 
 Let's make these field names better so we don't have to quote these later. Using `janitor::clean_names()` to do the dirty work. And we have a bunch of fields with 2_5 in the name so let's look at those. 
 
 ```{r fig.height=10, fig.width=10, message=FALSE, warning=FALSE}
-air_quality %>%
-  clean_names() %>%
-  select(
-    timestamp_iso,
-    nicename,
-    p_2_5_um,
-    p_2_5_um_b,
-    pm2_5_atm,
-    pm2_5_atm_b,
-    pm2_5_cf_1,
-    pm2_5_cf_1_b,
-    current_temp_f,
-    current_humidity
-  ) ->
+air_quality %>% 
+  clean_names() %>% 
+  select(timestamp_iso, nicename, p_2_5_um, p_2_5_um_b, pm2_5_atm, pm2_5_atm_b, pm2_5_cf_1, pm2_5_cf_1_b, current_temp_f, current_humidity) ->
   aq_limited
 
-ggpairs(aq_limited %>% select(-timestamp_iso) )
+ggpairs(aq_limited)
 ```
+
+Well that's kind of interesting. I'm not sure what the different pm2.5 related fields mean. Maybe we can find out. 
 
 ### Air Quality Detailed Plots
 
@@ -105,31 +95,37 @@ ggplot(aq_limited) +
 
 Well that's sort of noisy. I wonder what the correlation is. Let's reshape the data to look at correlations quickly. 
 
-Do a quick reshape of the data to get the stations in columns...
-
-I discovered in the data some time and location combinations that have multiple readings. I would not expect this. But since it's there, we'll just average them. 
-And the data is irregular. So we need to put this junk in buckets. I'm thinking maybe 10 min buckets? Let's see if we can do that. Feels like a job for grouping by a floor value. We can get the 10 minute interval floors from the `lubridate` package. 
-
+Do a quick reshape of the data to get the stations in columns
 ```{r}
+
 aq_limited %>%
   select(timestamp_iso, nicename, p_2_5_um) %>%
-  group_by(timestamp_iso, nicename) %>%
-  summarize(p_2_5_um = mean(p_2_5_um))  %>%
-  ungroup %>%
+  spread(nicename, p_2_5_um ) %>% head(10) %>% kable()
+```
+
+Oh... the data is irregular. Ok, so we need to put this junk in buckets. I'm thinking maybe 10 min buckets? Let's see if we can do that. Feels like a job for grouping by a floor value. We can get the 10 minute interval floors from the `lubridate` package. 
+
+```{r message=FALSE, warning=FALSE}
+library(lubridate)
+```
+```{r}
+
+aq_limited %>%
+  select(timestamp_iso, nicename, p_2_5_um) %>%
   spread(nicename, p_2_5_um) %>%
   group_by(timemark = floor_date(timestamp_iso, "10 mins")) %>%
   select(-timestamp_iso) %>%
-  summarize_all(mean, na.rm = TRUE) %>%
-  arrange(timemark) ->
+  summarize_all(mean, na.rm = TRUE) ->
   aq_limited_wide
 
-kable(head(aq_limited_wide, 20))
+kable(aq_limited_wide)
+
 
 ```
 
-That looks better. Let's see what's going on here... 
+That looks better. Pretty short time period, of course. Only an hour of data. This will be more interesting with more data later. But we're just figuring out what's going on right now. 
 
-Let's plot and look at the pairs plot with correlations:
+Now let's plot and look at the pairs plot with correlations:
 
 ```{r fig.height=10, fig.width=10}
 aq_limited_wide %>%
@@ -137,7 +133,7 @@ aq_limited_wide %>%
   ggpairs()
 ```
 
-As I would suspect, these are all pretty correlated. But that Douglas intersection thought... it's different. Still correlated but it doesn't drop as low as quickly as the others... I wonder if there's something dusty near there or if it just gets more traffic?
+There's not enough data here to be meaninful, so I put zero value on these correlation measures. We can come back later with more data and take a look at these. 
 
 Since we're slicing and dicing, let's look at `temp` vs. `p_2_5_um` for each station:
 
@@ -152,7 +148,9 @@ ggplot(aq_limited) +
 
 ```
 
+
 That's not as insightful as I had hoped. Let's look at humidity:
+
 
 ```{r}
 ggplot(aq_limited) +
@@ -161,7 +159,11 @@ ggplot(aq_limited) +
  labs(x = "Absolute Humidity", y = "Sensor Level", title = "`p_2_5_um` vs Humidity") +
  theme_minimal() +
  facet_wrap(vars(nicename))
+
+
 ```
+
+we see the striping in temp because temps are reported as whole integers only. Makes for a funny pattern. 
 
 ### Air Quality Station Map
 
@@ -175,7 +177,7 @@ library(leaflet)
 ```
 
 ```{r}
-# grab the coordinates
+# grap the coordinates
 air_quality %>%
   group_by(nicename, lat, lon) %>%
   summarize(obs_count = n()) ->
@@ -212,23 +214,8 @@ We'll start with a `skim`:
 ### Video Skim
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE, results='asis'}
-video_events <- read_csv("01_data/CSCDC+Dataset/video_event_csv/all.csv")
+video_events <- read_csv("01_data/CSCDC+Dataset+Preview/video_event_csv/all.csv")
 skim(video_events)  %>% kable()
 ```
-```{r}
-head(video_events)
-```
-
-So there's a lot going on in there... let's strip out some unique values for a few of the fields so we can see what we're dealing with. 
-
-```{r }
-video_events %>%
-  select(camera_id) %>%
-  arrange(camera_id) %>%
-  distinct
-```
-Oh... some intersections have two cameras.. but some only have one. Interesting. 
-
-
 
 
