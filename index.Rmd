@@ -78,9 +78,9 @@ Let's look at a few of these individually.
 ```{r}
 
 ggplot(aq_limited) +
- aes(x = timestamp_iso, y = p_2_5_um) +
+ aes(x = timestamp_iso, y = pm2_5_cf_1) +
  geom_line(size = 1.92, colour = "#0c4c8a") +
- labs(x = "Date & Time", y = "Sensor Level", title = "`p_2_5_um` by Station") +
+ labs(x = "Date & Time", y = "Sensor Level", title = "`pm2_5_cf_1` by Station") +
  theme_minimal() +
  facet_wrap(vars(nicename))
 
@@ -94,9 +94,9 @@ Let's look at the same data layered on the same graph. I can't tell if they move
 ```{r}
 
 ggplot(aq_limited) +
- aes(x = timestamp_iso, y = p_2_5_um, color = nicename) +
+ aes(x = timestamp_iso, y = pm2_5_cf_1, color = nicename) +
  geom_line(size = 1.2) +
- labs(x = "Date & Time", y = "Sensor Level", title = "`p_2_5_um` by Station") +
+ labs(x = "Date & Time", y = "Sensor Level", title = "`pm2_5_cf_1` by Station") +
  theme_minimal() +
  scale_colour_calc()
 
@@ -112,19 +112,20 @@ And the data is irregular. So we need to put this junk in buckets. I'm thinking 
 
 ```{r}
 aq_limited %>%
-  select(timestamp_iso, nicename, p_2_5_um) %>%
+  select(timestamp_iso, nicename, pm2_5_cf_1) %>%
   group_by(timestamp_iso, nicename) %>%
-  summarize(p_2_5_um = mean(p_2_5_um))  %>%
-  ungroup %>%
-  spread(nicename, p_2_5_um) %>%
-  group_by(timemark = floor_date(timestamp_iso, "10 mins")) %>%
+  summarize(pm2_5_cf_1 = mean(pm2_5_cf_1))  %>%
+  group_by(timemark = floor_date(timestamp_iso, "10 mins"), nicename) %>%
   select(-timestamp_iso) %>%
   summarize_all(mean, na.rm = TRUE) %>%
   arrange(timemark) ->
+  aq_limited_long
+
+aq_limited_long %>%
+  spread(nicename, pm2_5_cf_1) ->
   aq_limited_wide
 
 kable(head(aq_limited_wide, 20))
-
 ```
 
 That looks better. Let's see what's going on here... 
@@ -137,7 +138,7 @@ aq_limited_wide %>%
   ggpairs()
 ```
 
-As I would suspect, these are all pretty correlated. But that Douglas intersection thought... it's different. Still correlated but it doesn't drop as low as quickly as the others... I wonder if there's something dusty near there or if it just gets more traffic?
+As I would suspect, these are all pretty correlated. But that Douglas intersection though... it's different. I suspect high traffic (again). Still correlated but it doesn't drop as low as quickly as the others... I wonder if there's something dusty near there or if it just gets more traffic?
 
 Since we're slicing and dicing, let's look at `temp` vs. `p_2_5_um` for each station:
 
@@ -148,8 +149,6 @@ ggplot(aq_limited) +
  labs(x = "Temp (F)", y = "Sensor Level", title = "`p_2_5_um` vs Temp (F)") +
  theme_minimal() +
  facet_wrap(vars(nicename))
-
-
 ```
 
 That's not as insightful as I had hoped. Let's look at humidity:
@@ -221,14 +220,276 @@ head(video_events)
 
 So there's a lot going on in there... let's strip out some unique values for a few of the fields so we can see what we're dealing with. 
 
+So there's an `id` field that has a CUSIP for each vehicle... let's check that out
 ```{r }
 video_events %>%
+  select(id) %>%
+  distinct(id) %>%
+  summarize(n())
+```
+So there are a little over 4m unique vehicle ids. Interesting. 
+
+I wonder if any ids are in there multiple times. 
+
+```{r}
+video_events %>%
+  group_by(id) %>%
+  summarize(rec_count = n()) %>%
+  filter(rec_count > 1) -> 
+  has_dupe
+
+has_dupe
+```
+
+One... weird. I wonder if that's a random CUSIP clash (unlikely). 
+
+```{r}
+video_events %>%
+  inner_join(has_dupe) ->
+  double_up
+double_up
+```
+
+That's just straight up a dupe record. Well it probably won't cause us any trouble.. but we'll kick out one manually for OCD reasons. 
+
+```{r}
+double_up %>%
+  summarize(max(X1)) %>%
+  pluck(1) ->
+  bad_point
+
+video_events %>%
+  filter(X1 != bad_point) ->
+  video_events_nodupes
+```
+
+Let's look at the cameras and see what's going on... 
+
+```{r }
+video_events_nodupes %>%
   select(camera_id) %>%
   arrange(camera_id) %>%
   distinct
 ```
+
 Oh... some intersections have two cameras.. but some only have one. Interesting. 
 
+I think for now we just want data from one camera per intersection... so let's pick the camera with the most traffic and also adjust the names so we can use them later to match to pm data
 
+```{r}
+video_events_nodupes %>% 
+  group_by(camera_id) %>%
+  summarize(rec_count = n()) %>%
+  separate(camera_id, into  = c("street1", "street2", "street3", "street4"), sep="-", remove = FALSE)  %>%
+  mutate(nicename = paste(street1, street2, sep = "-")) %>%
+  select(nicename, camera_id, rec_count)  %>% 
+  group_by(nicename) %>%
+  top_n(1, rec_count) %>%
+  ungroup %>%
+  {.} ->
+  cameras
+
+cameras
+```
+
+Join that back to the video data to get just one cam per intersetion 
+
+```{r}
+video_events_nodupes %>%
+  inner_join(cameras %>% select(camera_id, nicename)) ->
+  video_events_nodupes_1per
+```
+
+in our initial `skim` we saw we have a field called `label` that has 18 unique values... let's look at that
+
+```{r}
+video_events_nodupes_1per %>%
+  group_by(label) %>%
+  summarize(row_count = n()) %>%
+  arrange(row_count)
+```
+Oh... that's a lot of stuff. 
+
+While I'm curious about the 83 boats, 33 airplanes, and 1 cat that wandered down JFK, I'm going to assume that's missclassification noise. And I'm going to filter out only the vehicles:
+
+```{r}
+video_events_nodupes_1per %>%
+  filter(label %in% c("car","bus","truck", "motorbike")) %>%
+  clean_names() %>%
+  {.} ->
+  video_events_nodupes_1per_filtered
+```
+
+so let's group these data into 10 minute buckets the way we did with the pm data:
+
+```{r}
+video_events_nodupes_1per_filtered %>%
+  group_by(timemark = floor_date(timestamp_iso, "10 mins"), nicename, label) %>%
+  summarize(vehicle_count = n())  ->
+  video_events_summarized_long
+
+head(video_events_summarized_long)
+```
+
+That's cool, but let's make it wide instead of long:
+
+```{r}
+video_events_summarized_long %>%
+  group_by(nicename, label) %>%
+  
+  spread(label, vehicle_count) %>%
+  replace(is.na(.), 0) ->
+  video_events_summarized_wide
+
+head(video_events_summarized_wide)
+```
+
+Let's join the 'wide' video data to the polution data. 
+
+
+```{r}
+
+aq_limited_long %>%
+  inner_join(video_events_summarized_wide) %>%
+  rowwise() %>%
+  mutate(total_traffic = sum(bus, car, motorbike, truck) ) ->
+  pm_traffic
+
+```
+
+Do a quick time plot of each intersection (again)
+
+```{r}
+ggplot(pm_traffic) +
+ aes(x = timemark, y = pm2_5_cf_1) +
+ geom_line(size = 1, colour = "#0c4c8a") +
+ labs(x = "Date & Time", y = "Sensor Level", title = "`pm2_5_cf_1` by Station") +
+ theme_minimal() +
+ facet_wrap(vars(nicename))
+```
+
+And traffic:
+
+```{r}
+ggplot(pm_traffic) +
+ aes(x = timemark, y = total_traffic) +
+ geom_line(size = 1, colour = "#800000") +
+ labs(x = "Date & Time", y = "Total Vehicles", title = "Total Vehicles by Station") +
+ theme_minimal() +
+ facet_wrap(vars(nicename))
+```
+
+Well that's some regular looking cycles... 
+
+Let's build a super simple linear model:
+
+```{r modellibs}
+library(parsnip)
+library(broom)
+```
+
+```{r model}
+lm(data = pm_traffic, pm2_5_cf_1 ~ bus + car + motorbike + truck) ->
+  linear_model
+
+summary(linear_model)
+
+
+```
+
+So right out of the gate we have issues.... the sign on the coefficients is not at all as expected. We would expect more traffic = more particulates... but this models says the opposite. That's a huge warning sign. 
+
+Let's plot the actual vs. modeled
+
+```{r}
+pm_traffic %>%
+  bind_cols( tibble(.pred = predict(linear_model, new_data = pm_traffic)) ) ->
+  predicted_lm 
+
+ggplot(predicted_lm) +
+ aes(x = pm2_5_cf_1, y = .pred) +
+ geom_line(size = 1, colour = "#228B22") +
+ labs(x = "pm2_5_cf_1", y = "Predicted pm2_5_cf_1", title = "Modeled vs. Actual") +
+ theme_minimal() +
+ facet_wrap(vars(nicename))
+```
+
+Well that's amazingly shitty. 
+
+The OLS never predicts under 15 (the intercept), but we have lots of data under 15. That's weird.  
+
+Let's look at a quick correlation matrix:
+
+```{r model1, eval=FALSE}
+pm_traffic %>%
+  select(pm2_5_cf_1, bus, car,  motorbike, truck, total_traffic) %>%
+  cor()
+```
+
+Weird... mos def negative correlations
+
+Maybe if we break it into intersections and just look at total traffic correlation to pm
+
+```{r model2, eval=FALSE}
+pm_traffic %>%
+  group_by(nicename) %>%
+  summarize(correl = cor(pm2_5_cf_1, total_traffic)) 
+```
+
+Total traffic is always just a little bit neg correlated.... 
+
+So clearly something else is going on.. most likly the effect is lagged. We can drill into one station and see what's going on. We'll normalize so we can plot together
+
+```{r}
+library(forecast)
+pm_traffic %>%
+  filter(nicename == "mlk-central") %>% 
+  ungroup() %>%
+  mutate_at(funs(scale), .vars = vars(pm2_5_cf_1, total_traffic)) ->
+  single_intersection
+
+
+ggplot(single_intersection) +
+  geom_line(size = 1,
+            colour = "#0c4c8a",
+            aes(x = timemark, y = pm2_5_cf_1)) +
+  geom_line(size = 1,
+            colour = "red",
+            aes(x = timemark, y = total_traffic)) +
+  labs(x = "Date & Time", y = "Scaled Values") +
+  theme_minimal() +
+  facet_wrap(vars(nicename))
+```
+
+Oh.. look at that... there's pretty clearly a lag. So in order to get anything out of the modeling then we need to account for the lag. 
+
+
+MORE TO COME HERE
+
+
+
+Let's bring in some weather data. I ran this previously and it takes a few minutes so I saved the results to a csv:
+
+```{r, eval=FALSE}
+library(rWind)
+# chattanooga is 35.0456° N, 85.3097° W
+
+dt <- seq(ymd_hms(paste(2019, 6, 01, 00, 00, 00, sep = "-")),
+          ymd_hms(paste(2019, 7, 01, 00, 00, 00, sep = "-")), by = "3 hours")
+ww <- wind.dl_2(dt, -85.3097,-85.3097, 35.0456, 35.0456)
+
+tidy (ww) %>%
+  write_csv("01_data/wind_data.csv")
+```
+
+Read in that csv
+
+```{r}
+wind_data <- read_csv("01_data/wind_data.csv") 
+```
+
+so we have a known date issue... not 100% sure what time zone the traffic data is... assuming UTC, but I bet it's eastern. Have to fix this later
+
+now we need to join every intersection to the wind data. 
 
 

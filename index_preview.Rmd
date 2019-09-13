@@ -108,8 +108,8 @@ Oh... the data is irregular. Ok, so we need to put this junk in buckets. I'm thi
 ```{r message=FALSE, warning=FALSE}
 library(lubridate)
 ```
-```{r}
 
+```{r}
 aq_limited %>%
   select(timestamp_iso, nicename, p_2_5_um) %>%
   spread(nicename, p_2_5_um) %>%
@@ -119,8 +119,6 @@ aq_limited %>%
   aq_limited_wide
 
 kable(aq_limited_wide)
-
-
 ```
 
 That looks better. Pretty short time period, of course. Only an hour of data. This will be more interesting with more data later. But we're just figuring out what's going on right now. 
