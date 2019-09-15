@@ -231,6 +231,8 @@ So there are a little over 4m unique vehicle ids. Interesting.
 
 I wonder if any ids are in there multiple times. 
 
+
+
 ```{r}
 video_events %>%
   group_by(id) %>%
@@ -442,9 +444,11 @@ So clearly something else is going on.. most likly the effect is lagged. We can 
 
 ```{r}
 library(forecast)
+
 pm_traffic %>%
   filter(nicename == "mlk-central") %>% 
   ungroup() %>%
+  na.omit() %>%
   mutate_at(funs(scale), .vars = vars(pm2_5_cf_1, total_traffic)) ->
   single_intersection
 
@@ -456,7 +460,7 @@ ggplot(single_intersection) +
   geom_line(size = 1,
             colour = "red",
             aes(x = timemark, y = total_traffic)) +
-  labs(x = "Date & Time", y = "Scaled Values") +
+  labs(x = "Date & Time", y = "Scaled Values", title = "Traffic and PM") +
   theme_minimal() +
   facet_wrap(vars(nicename))
 ```
@@ -464,8 +468,60 @@ ggplot(single_intersection) +
 Oh.. look at that... there's pretty clearly a lag. So in order to get anything out of the modeling then we need to account for the lag. 
 
 
-MORE TO COME HERE
+Let's work this as a time series decomp. We'll lag the pm data 6 hours
 
+```{r}
+library(tsbox)
+library(xts)
+library(tidyquant)
+
+
+single_intersection %>%
+  select(timemark, pm2_5_cf_1, total_traffic) ->
+  subset_data
+
+xts((subset_data %>% select(-timemark)),
+    order.by = subset_data$timemark,
+    frequency = 6 * 24 * 7)) ->
+  single_intersect_ts
+
+single_intersection %>%
+  select(timemark, pm2_5_cf_1, total_traffic) %>%
+  ts_long %>%
+  ts_ts %>%
+  ts(frequency = 6 * 24 * 7) ->
+  single_intersect_ts
+
+single_intersect_ts[, "total_traffic"] %>%
+  decompose(type = "additive") %>%
+  autoplot
+
+single_intersect_ts[, "pm2_5_cf_1"] %>%
+  decompose(type = "additive") %>%
+  autoplot
+
+cor( single_intersect_ts[, "total_traffic"], single_intersect_ts[, "pm2_5_cf_1"] )
+
+# cross correlation
+ccf(single_intersect_ts[, "total_traffic"], single_intersect_ts[, "pm2_5_cf_1"], lag.max = 70)
+```
+
+ok, so we're seeing some significant lagged correlation. It peaks at .06 of a frequency unit... our frequency is 6 * 24 * 7, so the lag is 6 * 24 * 7 * .06 = `r 6 * 24 * 7 * .06`
+
+```{r}
+single_intersect_ts_lagged <-
+  merge(single_intersect_ts,
+        stats::lag(single_intersect_ts[, "total_traffic"], 60))
+
+## pick up here...
+
+lm_fit <- tslm(pm2_5_cf_1 ~ lagged_traffic, data=single_intersect_ts_lagged)
+summary(lm_fit)
+
+fcast <- forecast(single_intersect_ts, model = pm_fit)
+autoplot(fcast) +
+
+```
 
 
 Let's bring in some weather data. I ran this previously and it takes a few minutes so I saved the results to a csv:
